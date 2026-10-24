@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="根据固定参考画风生成统一风格的男女Q版头像" />
+    <title>同画头像工坊</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232f5be7'/%3E%3Ccircle cx='32' cy='27' r='14' fill='%23ffd6bf'/%3E%3Cpath d='M14 58c2-13 9-19 18-19s16 6 18 19' fill='%23ff79b0'/%3E%3Ccircle cx='27' cy='27' r='2.5'/%3E%3Ccircle cx='37' cy='27' r='2.5'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">同</span><span>同画头像工坊</span></div>
+        <button class="status" id="apiStatus" type="button" onclick="document.getElementById('apiDialog').showModal()"><span></span>正在检查接口</button>
+      </header>
+
+      <section class="session-bar" aria-label="对话控制">
+        <div>
+          <strong id="sessionTitle">准备开始</strong>
+          <small id="sessionHint">点击开始，描述你想要的头像</small>
+        </div>
+        <div class="session-actions">
+          <button class="start-session" id="startSessionButton" type="button">开始对话</button>
+          <button class="stop-generation" id="stopGenerationButton" type="button" hidden>停止生成</button>
+          <button class="end-session" id="endSessionButton" type="button" hidden>结束对话</button>
+        </div>
+      </section>
+
+      <section class="workspace session-inactive" id="workspace">
+        <aside class="reference-panel">
+          <div class="section-title">
+            <span class="step">参考</span>
+            <h1>固定画风</h1>
+          </div>
+          <div class="reference-frame">
+            <img src="/reference.png" alt="女性和男性Q版头像画风参考" />
+          </div>
+          <div class="style-tags" aria-label="画风特征">
+            <span>大眼 Q 版</span><span>圆润线条</span><span>柔和肤色</span><span>干净背景</span>
+          </div>
+          <p class="reference-note">每次生成都会自动参考这组头像的造型、线条和上色方式。</p>
+        </aside>
+
+        <section class="creator-panel">
+          <div class="section-title">
+            <span class="step">对话</span>
+            <h2>说说你想要的头像</h2>
+          </div>
+
+          <form id="avatarForm">
+            <div class="conversation-history" id="conversationHistory" aria-live="polite"></div>
+
+            <label class="field request-field">你的想法
+              <textarea id="userRequest" rows="4" placeholder="例如：想要一个看起来亲切、有活力的短发男生头像，穿蓝色运动服"></textarea>
+            </label>
+
+            <button class="idea-button" id="ideaButton" type="button">生成头像</button>
+            <div class="thinking-note" id="thinkingNote">豆包会先整理你的描述，再交给 Seedream 生成。</div>
+
+            <section class="refine-box" id="refineBox" hidden>
+              <label class="field">还想怎么改？
+                <textarea id="feedbackInput" rows="2" placeholder="例如：头发再短一点，衣服换成蓝色"></textarea>
+              </label>
+              <button class="refine-button" id="refineButton" type="button">按这个要求修改</button>
+            </section>
+
+            <label class="upload-zone full" for="referenceUpload">
+              <input id="referenceUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+              <span class="upload-icon">＋</span>
+              <span><strong>添加人物参考图</strong><small>可选，最多 2 张；固定样图仍负责统一画风</small></span>
+            </label>
+            <div class="upload-preview" id="uploadPreview"></div>
+
+          </form>
+        </section>
+
+        <section class="result-panel" aria-live="polite">
+          <div class="section-title">
+            <span class="step">结果</span>
+            <h2>头像预览</h2>
+          </div>
+          <div class="result-box" id="resultBox">
+            <div class="empty-state">
+              <div class="empty-face">◕‿◕</div>
+              <p>点击“开始对话”开始创作</p>
+              <small>完成后可以下载照片并结束本次对话</small>
+            </div>
+          </div>
+          <button class="download" id="downloadButton" type="button" hidden>下载头像</button>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="apiDialog">
+      <form method="dialog" id="apiForm">
+        <button class="dialog-close" value="cancel" aria-label="关闭">×</button>
+        <span class="step">连接</span>
+        <h2>连接火山引擎 API</h2>
+        <p>同一个 API Key 可供豆包整理需求、Seedream 生成图片。本次关闭后不会保存。</p>
+        <label class="field">API Key
+          <input id="apiKeyInput" type="password" autocomplete="off" placeholder="粘贴完整的 API Key" required />
+        </label>
+        <label class="field model-field">Model ID
+          <input id="modelIdInput" type="text" autocomplete="off" value="doubao-seedream-5-0-flash-260915" required />
+        </label>
+        <label class="field model-field">豆包语言模型 ID <span>在模型广场开通后复制</span>
+          <input id="llmModelIdInput" type="text" autocomplete="off" placeholder="例如：你的豆包模型 ID" />
+        </label>
+        <div class="dialog-error" id="apiError"></div>
+        <button class="generate" id="connectButton" type="submit" value="default">连接 API</button>
+      </form>
+    </dialog>
+    <script src="/app.js?v=10"></script>
+  </body>
+</html>
